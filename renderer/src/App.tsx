@@ -1,20 +1,46 @@
-import React from 'react';
-import { IpcRenderer, IpcMessageEvent} from 'electron' ; 
-const electron  = window.require('electron') ;  // require electron like this in all the files. Don't Use import from 'electron' syntax for importing IpcRender from electron.
+import React, { useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { useState } from 'react';
+import {
+  MantineProvider,
+  ColorSchemeProvider,
+  ColorScheme,
+} from '@mantine/core';
+import Home from './Home';
+import AppContainer from './AppContainer';
+import Configure from './Configure';
+const electron = window.require('electron');
 
-let ipcRenderer : IpcRenderer  = electron.ipcRenderer ; 
+const ipcRenderer = electron.ipcRenderer;
 
-ipcRenderer.on('response' , (event:IpcMessageEvent , args:any)=>{
-  console.log(args);
-})
+function App() {
+  const [colorScheme, setColorScheme] = useState<ColorScheme>('dark');
+  const toggleColorScheme = (value?: ColorScheme) =>
+    setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
 
-const App: React.FC = () => {
+  useEffect(() => {
+    const fileDirectory = localStorage.getItem('fileDirectory');
+    if (fileDirectory) {
+      ipcRenderer.send('selectDirectory', fileDirectory);
+    }
+  }, []);
+
   return (
-    <div className="App">
-      <button onClick={e=>ipcRenderer.send('channel' , {title : 'hi' , content : 'hello this is my message'})} >
-        Click me
-      </button>
-    </div>
+    <>
+      <ColorSchemeProvider
+        colorScheme={colorScheme}
+        toggleColorScheme={toggleColorScheme}
+      >
+        <MantineProvider theme={{ colorScheme, primaryColor: 'cyan' }}>
+          <AppContainer>
+            <Routes>
+              <Route path='/' element={<Home />} />
+              <Route path='/configure' element={<Configure />} />
+            </Routes>
+          </AppContainer>
+        </MantineProvider>
+      </ColorSchemeProvider>
+    </>
   );
 }
 
