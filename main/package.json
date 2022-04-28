@@ -7,7 +7,8 @@
   },
   "author": "nateshmbhat",
   "dependencies": {
-    "electron": "^5.0.6"
+    "electron": "^5.0.6",
+    "image-data-uri": "^2.0.1"
   },
   "devDependencies": {
     "@types/electron": "^1.6.10",
